@@ -7,6 +7,8 @@ contract RockPaperScissors {
 
     uint private randNonce = 0;
 
+    uint256 public constant MINIMAL_BET_FEE = 1e9;
+
     event playResult(int8 result, uint fundBalance);
     error maxBetBalance(uint maxBalance);
 
@@ -41,6 +43,7 @@ contract RockPaperScissors {
     }
 
     function play(uint rps_num) public payable {
+        require(msg.value >= MINIMAL_BET_FEE, "LevelOne: Insufficient bet bee.");
         if(address(this).balance < msg.value * 2)
             revert maxBetBalance(address(this).balance / 2);
         
