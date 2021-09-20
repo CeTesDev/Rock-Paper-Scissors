@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-contract RockPaperScissors {
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract RockPaperScissors is Ownable {
 
     address private owner;
 
@@ -12,11 +14,6 @@ contract RockPaperScissors {
     event playResult(int8 result, uint fundBalance);
     error maxBetBalance(uint maxBalance);
 
-    modifier onlyOwner() {
-        require(isOwner());
-        _;
-    }
-
     function isOwner() public view returns(bool) {
         return msg.sender == owner;
     }
@@ -24,7 +21,7 @@ contract RockPaperScissors {
     constructor() payable {
         owner = msg.sender;
     }
-
+    
     receive() external payable {}
 
     ///This function compares rps of sender and rps number of owner
@@ -43,9 +40,8 @@ contract RockPaperScissors {
     }
 
     function play(uint rps_num) public payable {
-        require(msg.value >= MINIMAL_BET_FEE, "LevelOne: Insufficient bet bee.");
-        if(address(this).balance < msg.value * 2)
-            revert maxBetBalance(address(this).balance / 2);
+        require(msg.value >= MINIMAL_BET_FEE, "LevelOne: Insufficient bet fee.");
+        require(address(this).balance >= msg.value * 2, "LevelOne: Insufficient host fund.");
         
         uint _targetRPSNum = randomNumber();
         int8 _result = compareRPS(rps_num, _targetRPSNum);
